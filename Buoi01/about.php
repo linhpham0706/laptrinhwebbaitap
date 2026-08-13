@@ -14,7 +14,6 @@
     <title><?php echo $name; ?> - Giới thiệu bản thân</title>
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -31,7 +30,6 @@
             color: #1f2937;
             line-height: 1.7;
         }
-
 
         /* ===== THANH MENU ===== */
 
@@ -77,7 +75,6 @@
         .menu a:hover {
             color: #2563eb;
         }
-
 
         /* ===== PHẦN GIỚI THIỆU ===== */
 
@@ -148,7 +145,6 @@
             background: #1d4ed8;
         }
 
-
         /* ===== ẢNH ĐẠI DIỆN ===== */
 
         .avatar {
@@ -175,7 +171,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
-
         /* ===== CÁC SECTION ===== */
 
         section {
@@ -200,7 +195,6 @@
         .section-title p {
             color: #6b7280;
         }
-
 
         /* ===== GIỚI THIỆU ===== */
 
@@ -235,7 +229,6 @@
         .card p {
             color: #6b7280;
         }
-
 
         /* ===== DỰ ÁN ===== */
 
@@ -286,7 +279,6 @@
             color: #6b7280;
         }
 
-
         /* ===== LIÊN HỆ ===== */
 
         .contact-box {
@@ -321,7 +313,6 @@
             font-weight: bold;
         }
 
-
         /* ===== FOOTER ===== */
 
         footer {
@@ -333,7 +324,6 @@
 
             font-size: 14px;
         }
-
 
         /* ===== ĐIỆN THOẠI ===== */
 
@@ -375,14 +365,11 @@
                 grid-template-columns: 1fr;
             }
         }
-
     </style>
 
 </head>
 
-
 <body>
-
 
     <!-- ===== MENU ===== -->
 
@@ -413,7 +400,6 @@
         </div>
 
     </nav>
-
 
     <!-- ===== GIỚI THIỆU CHÍNH ===== -->
 
@@ -451,13 +437,11 @@
 
         </div>
 
-
         <div class="avatar">
             LP
         </div>
 
     </div>
-
 
     <!-- ===== VỀ BẢN THÂN ===== -->
 
@@ -473,9 +457,7 @@
 
         </div>
 
-
         <div class="about-container">
-
 
             <div class="card">
 
@@ -490,7 +472,6 @@
 
             </div>
 
-
             <div class="card">
 
                 <h3>💡 Định hướng</h3>
@@ -504,7 +485,6 @@
 
             </div>
 
-
             <div class="card">
 
                 <h3>🌱 Sở thích</h3>
@@ -517,7 +497,6 @@
                 </p>
 
             </div>
-
 
             <div class="card">
 
@@ -535,7 +514,6 @@
 
     </section>
 
-
     <!-- ===== DỰ ÁN ===== -->
 
     <section id="projects">
@@ -550,11 +528,9 @@
 
         </div>
 
-
         <div class="projects">
 
-
-            <!-- DỰ ÁN WEB -->
+            <!-- DỰ ÁN 01 -->
 
             <div class="project">
 
@@ -563,17 +539,16 @@
                 </div>
 
                 <h3>
-                    web giới thiệu du lịch đà nẵng
+                    Web giới thiệu du lịch Đà Nẵng
                 </h3>
 
                 <p>
-                    giới thiệu du lịch, ẩm thực, đặt phòng
+                    Giới thiệu du lịch, ẩm thực, đặt phòng.
                 </p>
 
             </div>
 
-
-            <!-- DỰ ÁN WEBSITE -->
+            <!-- DỰ ÁN 02 -->
 
             <div class="project">
 
@@ -592,8 +567,9 @@
                     về lập trình web.
                 </p>
 
-        </div>
-         <!-- DỰ ÁN WEBSITE -->
+            </div>
+
+            <!-- DỰ ÁN 03 -->
 
             <div class="project">
 
@@ -606,13 +582,15 @@
                 </h3>
 
                 <p>
-                   
+                    Xây dựng website quản lý thư viện mini
+                    phục vụ cho việc thực hành lập trình web.
                 </p>
+
+            </div>
 
         </div>
 
     </section>
-
 
     <!-- ===== LIÊN HỆ ===== -->
 
@@ -636,7 +614,6 @@
 
     </section>
 
-
     <!-- ===== FOOTER ===== -->
 
     <footer>
@@ -645,7 +622,6 @@
         Personal Portfolio.
 
     </footer>
-
 
 </body>
 
