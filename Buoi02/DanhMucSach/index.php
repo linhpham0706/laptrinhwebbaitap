@@ -1,53 +1,90 @@
-<?php 
- 
-$danhSachDanhMuc = []; 
-$thongBao = ""; 
- 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') { 
- 
-    $tenDanhMuc = trim($_POST['ten_danh_muc']); 
-    $moTa = trim($_POST['mo_ta']); 
-    $trangThai = $_POST['trang_thai']; 
- 
-    // Kiểm tra tên danh mục 
-    if ($tenDanhMuc == '') { 
- 
-        $thongBao = "Tên danh mục không được để trống!"; 
- 
-    } else { 
- 
-        // Tạo một danh mục 
-        $danhMuc = [ 
-            'ten' => $tenDanhMuc, 
-            'mo_ta' => $moTa, 
-            'trang_thai' => $trangThai 
-        ]; 
- 
-        // Thêm danh mục vào mảng 
-        $danhSachDanhMuc[] = $danhMuc; 
- 
-        $thongBao = "Thêm danh mục thành công!"; 
-    } 
-} 
- 
-// Hàm hiển thị trạng thái 
-function hienThiTrangThai($trangThai) 
-{ 
-    if ($trangThai == 1) { 
-        return "Đang sử dụng"; 
-    } else { 
-        return "Ngừng sử dụng"; 
-    } 
-} 
- 
-?> 
+<?php
+// Khởi tạo Session để lưu danh sách danh mục tạm thời giữa các lần submit (Do chưa dùng CSDL)
+session_start();
 
-<!DOCTYPE html> 
-<html lang="vi"> 
- 
-<head> 
-    <meta charset="UTF-8"> 
-    <title>Quản lý danh mục sách</title> 
+if (!isset($_SESSION['danhSachDanhMuc'])) {
+    $_SESSION['danhSachDanhMuc'] = [];
+}
+
+// Khai báo mảng chứa lỗi và thông báo
+$errors = [];
+$thongBaoThanhCong = "";
+
+// Khởi tạo các biến để giữ lại giá trị người dùng đã nhập (Old Input)
+$tenDanhMuc = "";
+$moTa = "";
+$trangThai = "1";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    // 1. CHUẨN HÓA DỮ LIỆU ĐẦU VÀO (Sanitization)
+    $tenDanhMuc = isset($_POST['ten_danh_muc']) ? trim($_POST['ten_danh_muc']) : '';
+    $moTa = isset($_POST['mo_ta']) ? trim($_POST['mo_ta']) : '';
+    $trangThai = isset($_POST['trang_thai']) ? trim($_POST['trang_thai']) : '1';
+
+    // 2. KIỂM TRA DỮ LIỆU PHÍA SERVER (Validation)
+    
+    // Kiểm tra tên danh mục (Bắt buộc)
+    if (empty($tenDanhMuc)) {
+        $errors['ten_danh_muc'] = "Tên danh mục không được để trống!";
+    } elseif (mb_strlen($tenDanhMuc) < 3) {
+        $errors['ten_danh_muc'] = "Tên danh mục phải có tối thiểu 3 ký tự!";
+    } elseif (mb_strlen($tenDanhMuc) > 100) {
+        $errors['ten_danh_muc'] = "Tên danh mục không được vượt quá 100 ký tự!";
+    }
+
+    // Kiểm tra độ dài mô tả (Tùy chọn nhưng nếu nhập thì kiểm tra độ dài)
+    if (!empty($moTa) && mb_strlen($moTa) > 500) {
+        $errors['mo_ta'] = "Mô tả không được vượt quá 500 ký tự!";
+    }
+
+    // Kiểm tra trạng thái hợp lệ
+    if (!in_array($trangThai, ['0', '1'])) {
+        $errors['trang_thai'] = "Trạng thái không hợp lệ!";
+    }
+
+    // 3. XỬ LÝ KHI DỮ LIỆU HỢP LỆ
+    if (empty($errors)) {
+        $danhMuc = [
+            'ten' => $tenDanhMuc,
+            'mo_ta' => $moTa,
+            'trang_thai' => $trangThai
+        ];
+
+        // Thêm vào session
+        $_SESSION['danhSachDanhMuc'][] = $danhMuc;
+
+        $thongBaoThanhCong = "Thêm danh mục sách thành công!";
+
+        // RS form sau khi thêm thành công
+        $tenDanhMuc = "";
+        $moTa = "";
+        $trangThai = "1";
+    }
+}
+
+// Lấy danh sách từ Session
+$danhSachDanhMuc = $_SESSION['danhSachDanhMuc'];
+
+// Hàm hiển thị trạng thái
+function hienThiTrangThai($trangThai)
+{
+    return ($trangThai == 1) ? "Đang sử dụng" : "Ngừng sử dụng";
+}
+
+// Hàm chống XSS cho các đầu ra
+function escape($data)
+{
+    return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+}
+?>
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý danh mục sách</title>
 
     <style>
         * {
@@ -85,13 +122,24 @@ function hienThiTrangThai($trangThai)
             margin-top: 25px;
         }
 
-        .thong-bao {
+        .thong-bao-thanh-cong {
             background-color: #e8f8f0;
             color: #218c5a;
             padding: 12px 15px;
             border-radius: 6px;
             margin-bottom: 20px;
             border-left: 4px solid #2ecc71;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .input-error {
+            border-color: #e74c3c !important;
         }
 
         form {
@@ -101,17 +149,27 @@ function hienThiTrangThai($trangThai)
             border: 1px solid #ddd;
         }
 
-        label {
-            display: inline-block;
-            width: 120px;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .form-group {
+            margin-bottom: 15px;
         }
 
-        input,
+        label {
+            display: inline-block;
+            width: 130px;
+            font-weight: bold;
+            vertical-align: top;
+            padding-top: 8px;
+        }
+
+        .input-control {
+            display: inline-block;
+            width: 70%;
+        }
+
+        input[type="text"],
         textarea,
         select {
-            width: 70%;
+            width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
@@ -121,7 +179,6 @@ function hienThiTrangThai($trangThai)
         textarea {
             height: 80px;
             resize: vertical;
-            vertical-align: top;
         }
 
         input:focus,
@@ -183,86 +240,112 @@ function hienThiTrangThai($trangThai)
             text-align: center;
             font-weight: bold;
         }
+
+        .status-active {
+            color: #27ae60;
+        }
+
+        .status-inactive {
+            color: #c0392b;
+        }
     </style>
-</head> 
- 
-<body> 
+</head>
+
+<body>
 
 <div class="container">
 
     <h1>📚 Quản lý danh mục sách</h1>
 
-    <?php if ($thongBao != ""): ?> 
-        <div class="thong-bao">
-            <?php echo $thongBao; ?>
+    <?php if (!empty($thongBaoThanhCong)): ?>
+        <div class="thong-bao-thanh-cong">
+            <?php echo escape($thongBaoThanhCong); ?>
         </div>
-    <?php endif; ?> 
- 
-    <h2>➕ Thêm danh mục sách</h2> 
- 
-    <form method="post"> 
- 
-        <label>Tên danh mục:</label> 
-        <input type="text" name="ten_danh_muc" placeholder="Nhập tên danh mục..."> 
- 
-        <br><br> 
- 
-        <label>Mô tả:</label> 
-        <textarea name="mo_ta" placeholder="Nhập mô tả danh mục..."></textarea> 
- 
-        <br><br> 
- 
-        <label>Trạng thái:</label> 
-        <select name="trang_thai"> 
-            <option value="1">Đang sử dụng</option> 
-            <option value="0">Ngừng sử dụng</option> 
-        </select> 
- 
-        <br><br> 
- 
-        <button type="submit">➕ Thêm danh mục</button> 
- 
-    </form> 
+    <?php endif; ?>
 
-    <h2>📋 Danh sách danh mục sách</h2> 
- 
-    <table> 
- 
-        <tr> 
-            <th>STT</th> 
-            <th>Tên danh mục</th> 
-            <th>Mô tả</th> 
-            <th>Trạng thái</th> 
-        </tr> 
- 
-        <?php foreach ($danhSachDanhMuc as $index => $danhMuc): ?> 
- 
-            <tr> 
- 
-                <td> 
-                    <?php echo $index + 1; ?> 
-                </td> 
- 
-                <td> 
-                    <?php echo $danhMuc['ten']; ?> 
-                </td> 
- 
-                <td> 
-                    <?php echo $danhMuc['mo_ta']; ?> 
-                </td> 
- 
-                <td> 
-                    <?php echo hienThiTrangThai($danhMuc['trang_thai']); ?> 
-                </td> 
- 
-            </tr> 
- 
-        <?php endforeach; ?> 
- 
-    </table> 
+    <h2>➕ Thêm danh mục sách</h2>
+
+    <form method="post" action="">
+
+        <div class="form-group">
+            <label for="ten_danh_muc">Tên danh mục <span style="color:red">*</span>:</label>
+            <div class="input-control">
+                <input type="text" 
+                       id="ten_danh_muc" 
+                       name="ten_danh_muc" 
+                       placeholder="Nhập tên danh mục..." 
+                       value="<?php echo escape($tenDanhMuc); ?>"
+                       class="<?php echo isset($errors['ten_danh_muc']) ? 'input-error' : ''; ?>">
+                <?php if (isset($errors['ten_danh_muc'])): ?>
+                    <span class="error-message"><?php echo escape($errors['ten_danh_muc']); ?></span>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="mo_ta">Mô tả:</label>
+            <div class="input-control">
+                <textarea id="mo_ta" 
+                          name="mo_ta" 
+                          placeholder="Nhập mô tả danh mục..."
+                          class="<?php echo isset($errors['mo_ta']) ? 'input-error' : ''; ?>"><?php echo escape($moTa); ?></textarea>
+                <?php if (isset($errors['mo_ta'])): ?>
+                    <span class="error-message"><?php echo escape($errors['mo_ta']); ?></span>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="trang_thai">Trạng thái:</label>
+            <div class="input-control">
+                <select id="trang_thai" name="trang_thai">
+                    <option value="1" <?php echo ($trangThai == '1') ? 'selected' : ''; ?>>Đang sử dụng</option>
+                    <option value="0" <?php echo ($trangThai == '0') ? 'selected' : ''; ?>>Ngừng sử dụng</option>
+                </select>
+                <?php if (isset($errors['trang_thai'])): ?>
+                    <span class="error-message"><?php echo escape($errors['trang_thai']); ?></span>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <button type="submit">➕ Thêm danh mục</button>
+
+    </form>
+
+    <h2>📋 Danh sách danh mục sách</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (empty($danhSachDanhMuc)): ?>
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #7f8c8d;">Chưa có danh mục nào được tạo.</td>
+                </tr>
+            <?php else: ?>
+                <?php foreach ($danhSachDanhMuc as $index => $danhMuc): ?>
+                    <tr>
+                        <td><?php echo $index + 1; ?></td>
+                        <!-- Dùng escape() để chống tấn công XSS khi hiển thị lại dữ liệu -->
+                        <td><?php echo escape($danhMuc['ten']); ?></td>
+                        <td><?php echo escape($danhMuc['mo_ta']); ?></td>
+                        <td class="<?php echo $danhMuc['trang_thai'] == 1 ? 'status-active' : 'status-inactive'; ?>">
+                            <?php echo escape(hienThiTrangThai($danhMuc['trang_thai'])); ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
 
 </div>
- 
-</body> 
- 
+
+</body>
+
 </html>
